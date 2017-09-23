@@ -1,0 +1,92 @@
+---
+title: "Motor Trend"
+author: "laubolgo"
+date: "23 de septiembre de 2017"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Motor Trend Data and Libraries 
+```{r, echo=TRUE}
+library(ggplot2)
+data(mtcars)
+head(mtcars, n=3)
+dim(mtcars)
+mtcars$cyl <- as.factor(mtcars$cyl)
+mtcars$vs <- as.factor(mtcars$vs)
+mtcars$am <- factor(mtcars$am)
+mtcars$gear <- factor(mtcars$gear)
+mtcars$carb <- factor(mtcars$carb)
+attach(mtcars)
+```
+
+## Exploratory Analysis
+
+Exploratory Box plot compares Automatic and Manual transmission MPG. The graph leads us to believe that there is a significant increase in MPG when for vehicles with a manual transmission vs automatic.
+
+```{r, echo=TRUE}
+  boxplot(mpg ~ am, 
+          xlab="Transmission Type (0 = Automatic, 1 = Manual)", 
+          ylab="MPG",
+          main="MPG by Transmission Type")
+```
+
+### Statistical Inference
+
+T-Test transmission type and MPG
+
+```{r, echo=TRUE}
+testResults <- t.test(mpg ~ am)
+testResults$p.value
+```
+
+The T-Test rejects the null hypothesis that the difference between transmission types is 0.
+ 
+```{r, echo=TRUE}
+testResults$estimate
+```
+
+The difference estimate between the 2 transmissions is 7.24494 MPG in favor of manual.
+
+### Regression Analysis
+
+Fit the full model of the data.
+
+```{r, echo=TRUE}
+fullModelFit <- lm(mpg ~ ., data = mtcars)
+summary(fullModelFit)  # results hidden
+summary(fullModelFit)$coeff  # results hidden
+```
+
+Since none of the coefficients have a p-value less than 0.05 we cannot conclude which variables are more statistically significant.
+
+Backward selection to determine which variables are most statistically significant.
+
+```{r, echo=TRUE}
+stepFit <- step(fullModelFit)
+summary(stepFit) # results hidden
+summary(stepFit)$coeff # results hidden
+```
+
+### Residual and Diagnosis
+
+```{r, echo=TRUE}
+sum((abs(dfbetas(stepFit)))>1)
+par(mfrow = c(2, 2))
+plot(stepFit)
+```
+
+## Conclusion
+
+There is a difference in MPG based on transmission type. A manual transmission will have a slight MPG boost. However, it seems that weight, horsepower, & number of cylinders are more statistically significant when determining MPG.
+
+This model better explains the correlation of transmission on MPG values. It explains that 83.99% of the variance seen in the data set and there by conclude that on average, manual transmission cars have 2.084 MPGs more than automatic transmission cars holding the other variables constant.
+
+
+
+
